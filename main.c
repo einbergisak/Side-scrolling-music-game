@@ -55,30 +55,20 @@ int main(void) {
 	SPI2CONSET = 0x8000;
 
 	display_init();
-	display_string(0, "KTH/ICT lab");
-	display_string(1, "in Computer");
-	display_string(2, "Engineering");
-	display_string(3, "Welcome!");
 	display_update();
 
-// 	const uint8_t icon[] = {
-// 		109,109,110,110,109,109,109,77
-// ,109,109,109,73,109,109,109,77
-// ,109,109,109,36,73,109,109,73
-// ,109,146,36,68,72,109,109,109
-// ,109,110,36,72,72,73,109,109
-// ,109,109,36,105,105,68,73,109
-// ,73,68,36,36,68,36,36,73
-// ,32,32,32,32,32,32,0,32
-// 	};
 
+
+	display_image(0, icon);
+	display_image(32, icon);
+	display_image(64, icon);
 	display_image(96, icon);
 
-	labinit(); /* Do any lab-specific initialization */
+
 
 	while( 1 )
 	{
-	  labwork(); /* Do lab-specific things again and again */
+
 	}
 	return 0;
 }
