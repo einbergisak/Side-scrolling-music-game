@@ -1,31 +1,24 @@
 from PIL import Image
 image = Image.open("yeet.png")
 
+width = image.width
+
 if image.size[1] > 32:
     print("invalid image size")
     exit()
 
-image = image
 pixels = list(image.convert("1").getdata())
-print(pixels)
-print("len: ", len(pixels))
 output = []
 
+""" A page has 8 rows, and the image is "width" columns wide, so page*8*width gives the correct page start index.
+The image is "width" colums wide, so row*width gives correct row, and col gives correct column.
+Pixels will only have values 0 or 255, so a division by 255 turns every value into 0 or 1 instead.
+These bits are concatenated to a string, which is then interpreted as a byte, with each bit corresponding to a pixel."""
 for page in range(0, 4):
-    for col in range(0, 128):
+    for col in range(0, width):
         bytestr = ""
         for row in range(0, 8):
-            bytestr = str(pixels[page*1024+row*128 + col]//255) + bytestr
-        byte = int(bytestr, 2)
-        output.append(byte)
-
-
-
-# for n in range(0, len(pixels) // 8):
-#     bytestr = ""
-#     for bitN in range(0, 8):
-#         bytestr += str(pixels[n*8 + bitN]//255)
-#     byte = int(bytestr, 2)
-#     output.append(byte)
+            bytestr = str(pixels[page*8*width + row*width + col]//255) + bytestr
+        output.append(int(bytestr, 2))
 
 print(output)
