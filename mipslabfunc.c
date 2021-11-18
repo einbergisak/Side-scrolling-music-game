@@ -145,7 +145,7 @@ void set_entire_display(const uint8_t *buffer)
 
       // Fill the current page with its corresponding bytes in the buffer
       for (col = 0; col < 128; col++)
-        display_send_byte(~buffer[page * 128 + col]);
+        display_send_byte(~buffer[page*128 + col]);
     }
 
 }
