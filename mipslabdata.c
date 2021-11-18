@@ -160,6 +160,3 @@ const uint8_t const icon[] = {
 	184, 69, 186, 69, 254, 80, 175, 217,
 };
 
-// const uint8_t const icon[] = {
-
-// 		};
