@@ -8,7 +8,7 @@
 
 #include <stdint.h>  /* Declarations of uint_32 and the like */
 #include <pic32mx.h> /* Declarations of system-specific addresses etc */
-#include "graphics.h" /* Declatations for these labs */
+#include "graphics.h" // Declarations for this file
 
 /* Declare a helper function which is local to this file */
 static void num32asc(char *s, int);
@@ -24,6 +24,29 @@ static void num32asc(char *s, int);
 
 #define DISPLAY_TURN_OFF_VDD (PORTFSET = 0x40)
 #define DISPLAY_TURN_OFF_VBAT (PORTFSET = 0x20)
+
+//screenstate initialize_screenstate(uint8_t * image){
+//  uint32_t image_width = sizeof(image)/4;
+//  uint8_t initial_image[512];
+//  int page;
+//  for (page = 0; page < 4; page++){
+//    memcpy(&initial_image[page*128], &image[page*image_width], 128);
+//  }
+//  screenstate state = {.entire_image = image, .entire_image_width = image_width, .current_scroll_amount = 0};
+//  state.current_state = initial_image;
+//  return state;
+//}
+
+/// Advances the current_state of the screenstate by the given amount of pixels
+//void advance_screenstate(screenstate * state, uint8_t amount){
+//  state->current_scroll_amount += amount;
+//  int page;
+//  for (page = 0; page < 4; page++){
+//    // memmove(state.current_state[page*128], state.current_state[amount+page*128], 128-amount);
+//
+//    memcpy(state.current_state[page*128], state.entire_image[state->entire_image_width*page + state->current_scroll_amount], 128);
+//  }
+//}
 
 /* quicksleep:
    A simple function to create a small delay.
@@ -53,7 +76,7 @@ uint8_t display_send_byte(uint8_t data)
 }
 
 // Reference: https://digilent.com/reference/_media/chipkit_shield_basic_io_shield:chipkit_basic_io_shield_rm.pdf
-void set_entire_display(uint8_t * buffer)
+void set_entire_display(screenstate * state)
 {
   // page = display memory page number, col = column in display memory page
   int page, col;
@@ -73,9 +96,11 @@ void set_entire_display(uint8_t * buffer)
 
     // Fill the current page with its corresponding bytes in the buffer
     for (col = 0; col < 128; col++)
-      display_send_byte(~buffer[page * 128 + col]);
+      display_send_byte(~state->entire_image[page * state->entire_image_width + col + state->current_scroll_amount]);
   }
 }
+
+
 
 void display_init(void)
 {

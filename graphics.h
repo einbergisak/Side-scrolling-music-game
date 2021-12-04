@@ -10,8 +10,17 @@
 /* Declare display-related functions from display.c */
 
 #include <stdint.h>	 /* Declarations of uint_32 and the like */
+typedef struct screenstate {
+//    uint8_t current_state[512]; // the portion of the screen currently visible
+    uint32_t current_scroll_amount;
+    uint32_t entire_image_width;
+    uint8_t entire_image[]; // flexible array member
+} screenstate;
 
-void set_entire_display(uint8_t * data);
+/// Advances the current_state of the screenstate by the given amount of pixels
+//screenstate initialize_screenstate(uint8_t * image);
+void advance_screenstate(screenstate * state, uint8_t amount);
+void set_entire_display(screenstate * state);
 void display_init(void);
 void display_string(int line, char *s);
 void display_update(void);

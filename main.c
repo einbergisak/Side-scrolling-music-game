@@ -62,11 +62,15 @@ int main(void)
 
 	display_init();
 	display_update();
-
-	set_entire_display(iconn);
-
-	while (1)
+//	set_entire_display(iconn);
+//    quicksleep(700000);
+    yeet:	while (yoot.current_scroll_amount < yoot.entire_image_width - 128)
 	{
+		set_entire_display(&yoot);
+		quicksleep(50000);
+        yoot.current_scroll_amount += 1;
 	}
+    yoot.current_scroll_amount = 0;
+    goto yeet;
 	return 0;
 }

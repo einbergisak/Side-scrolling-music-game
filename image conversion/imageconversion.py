@@ -21,4 +21,8 @@ for page in range(0, 4):
             bytestr = str(pixels[page*8*width + row*width + col]//255) + bytestr
         output.append(int(bytestr, 2))
 
+with open("output.txt", "w") as o:
+    print(output, file=o)
+    o.close()
+
 print(output)
