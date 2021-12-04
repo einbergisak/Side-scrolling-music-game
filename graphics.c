@@ -25,155 +25,123 @@ static void num32asc(char *s, int);
 #define DISPLAY_TURN_OFF_VDD (PORTFSET = 0x40)
 #define DISPLAY_TURN_OFF_VBAT (PORTFSET = 0x20)
 
-//screenstate initialize_screenstate(uint8_t * image){
-//  uint32_t image_width = sizeof(image)/4;
-//  uint8_t initial_image[512];
-//  int page;
-//  for (page = 0; page < 4; page++){
-//    memcpy(&initial_image[page*128], &image[page*image_width], 128);
-//  }
-//  screenstate state = {.entire_image = image, .entire_image_width = image_width, .current_scroll_amount = 0};
-//  state.current_state = initial_image;
-//  return state;
-//}
-
-/// Advances the current_state of the screenstate by the given amount of pixels
-//void advance_screenstate(screenstate * state, uint8_t amount){
-//  state->current_scroll_amount += amount;
-//  int page;
-//  for (page = 0; page < 4; page++){
-//    // memmove(state.current_state[page*128], state.current_state[amount+page*128], 128-amount);
-//
-//    memcpy(state.current_state[page*128], state.entire_image[state->entire_image_width*page + state->current_scroll_amount], 128);
-//  }
-//}
-
 /* quicksleep:
    A simple function to create a small delay.
    Very inefficient use of computing resources,
    but very handy in some special cases. */
-void quicksleep(int cyc)
-{
-  int i;
-  for (i = cyc; i > 0; i--)
-    ;
+void quicksleep(int cyc) {
+    int i;
+    for (i = cyc; i > 0; i--);
 }
 
-uint8_t display_send_byte(uint8_t data)
-{
-  // Wait for transmitter
-  while (!(SPI2STAT & 0x08))
-    ;
+uint8_t display_send_byte(uint8_t data) {
+    // Wait for transmitter
+    while (!(SPI2STAT & 0x08));
 
-  // Write transmit byte
-  SPI2BUF = data;
+    // Write transmit byte
+    SPI2BUF = data;
 
-  // Wait for recieve byte
-  while (!(SPI2STAT & 1))
-    ;
+    // Wait for recieve byte
+    while (!(SPI2STAT & 1));
 
-  return SPI2BUF;
+    return SPI2BUF;
 }
 
 // Reference: https://digilent.com/reference/_media/chipkit_shield_basic_io_shield:chipkit_basic_io_shield_rm.pdf
-void set_entire_display(screenstate * state)
-{
-  // page = display memory page number, col = column in display memory page
-  int page, col;
+void set_entire_display(screenstate *state) {
+    // page = display memory page number, col = column in display memory page
+    int page, col;
 
-  // There are 4 display pages, each of which corresponds to 1/4 of the screen, horizontally divided.
-  for (page = 0; page < 4; page++) // For each display memory page
-  {
-    DISPLAY_CHANGE_TO_COMMAND_MODE;
-
-    display_send_byte(0x22); // "Set page" command
-    display_send_byte(page); // Set page number
-
-    display_send_byte(0);    // Set low nybble of column
-    display_send_byte(0x10); // Set high nybble of column
-
-    DISPLAY_CHANGE_TO_DATA_MODE;
-
-    // Fill the current page with its corresponding bytes in the buffer
-    for (col = 0; col < 128; col++)
-      display_send_byte(~state->entire_image[page * state->entire_image_width + col + state->current_scroll_amount]);
-  }
-}
-
-
-
-void display_init(void)
-{
-  DISPLAY_CHANGE_TO_COMMAND_MODE;
-  quicksleep(10);
-  DISPLAY_ACTIVATE_VDD;
-  quicksleep(1000000);
-
-  display_send_byte(0xAE);
-  DISPLAY_ACTIVATE_RESET;
-  quicksleep(10);
-  DISPLAY_DO_NOT_RESET;
-  quicksleep(10);
-
-  display_send_byte(0x8D);
-  display_send_byte(0x14);
-
-  display_send_byte(0xD9);
-  display_send_byte(0xF1);
-
-  DISPLAY_ACTIVATE_VBAT;
-  quicksleep(10000000);
-
-  display_send_byte(0xA1);
-  display_send_byte(0xC8);
-
-  display_send_byte(0xDA);
-  display_send_byte(0x20);
-
-  display_send_byte(0xAF);
-}
-
-void display_string(int line, char *s)
-{
-  int i;
-  if (line < 0 || line >= 4)
-    return;
-  if (!s)
-    return;
-
-  for (i = 0; i < 16; i++)
-    if (*s)
+    // There are 4 display pages, each of which corresponds to 1/4 of the screen, horizontally divided.
+    for (page = 0; page < 4; page++) // For each display memory page
     {
-      textbuffer[line][i] = *s;
-      s++;
+        DISPLAY_CHANGE_TO_COMMAND_MODE;
+
+        display_send_byte(0x22); // "Set page" command
+        display_send_byte(page); // Set page number
+
+        display_send_byte(0);    // Set low nybble of column
+        display_send_byte(0x10); // Set high nybble of column
+
+        DISPLAY_CHANGE_TO_DATA_MODE;
+
+        // Fill the current page with its corresponding bytes
+        for (col = 0; col < 128; col++) // 128 bytes per page (screen width)
+            display_send_byte(
+                    ~state->entire_image[
+                            page * state->entire_image_width // y-coordinates (page)
+                            + col + state->current_scroll_amount // x-coordinates (column)
+                    ]
+            )
     }
-    else
-      textbuffer[line][i] = ' ';
 }
 
-void display_update(void)
-{
-  int i, j, k;
-  int c;
-  for (i = 0; i < 4; i++)
-  {
+
+void display_init(void) {
     DISPLAY_CHANGE_TO_COMMAND_MODE;
-    display_send_byte(0x22);
-    display_send_byte(i);
+    quicksleep(10);
+    DISPLAY_ACTIVATE_VDD;
+    quicksleep(1000000);
 
-    display_send_byte(0x0);
-    display_send_byte(0x10);
+    display_send_byte(0xAE);
+    DISPLAY_ACTIVATE_RESET;
+    quicksleep(10);
+    DISPLAY_DO_NOT_RESET;
+    quicksleep(10);
 
-    DISPLAY_CHANGE_TO_DATA_MODE;
+    display_send_byte(0x8D);
+    display_send_byte(0x14);
 
-    for (j = 0; j < 16; j++)
-    {
-      c = textbuffer[i][j];
-      if (c & 0x80)
-        continue;
+    display_send_byte(0xD9);
+    display_send_byte(0xF1);
 
-      for (k = 0; k < 8; k++)
-        display_send_byte(font[c * 8 + k]);
+    DISPLAY_ACTIVATE_VBAT;
+    quicksleep(10000000);
+
+    display_send_byte(0xA1);
+    display_send_byte(0xC8);
+
+    display_send_byte(0xDA);
+    display_send_byte(0x20);
+
+    display_send_byte(0xAF);
+}
+
+void display_string(int line, char *s) {
+    int i;
+    if (line < 0 || line >= 4)
+        return;
+    if (!s)
+        return;
+
+    for (i = 0; i < 16; i++)
+        if (*s) {
+            textbuffer[line][i] = *s;
+            s++;
+        } else
+            textbuffer[line][i] = ' ';
+}
+
+void display_update(void) {
+    int i, j, k;
+    int c;
+    for (i = 0; i < 4; i++) {
+        DISPLAY_CHANGE_TO_COMMAND_MODE;
+        display_send_byte(0x22);
+        display_send_byte(i);
+
+        display_send_byte(0x0);
+        display_send_byte(0x10);
+
+        DISPLAY_CHANGE_TO_DATA_MODE;
+
+        for (j = 0; j < 16; j++) {
+            c = textbuffer[i][j];
+            if (c & 0x80)
+                continue;
+
+            for (k = 0; k < 8; k++)
+                display_send_byte(font[c * 8 + k]);
+        }
     }
-  }
 }
