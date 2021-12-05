@@ -1,6 +1,6 @@
 from PIL import Image
 
-image = Image.open("yeet.png")
+image = Image.open("player.png")
 
 width = image.width
 

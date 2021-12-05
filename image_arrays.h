@@ -1,4 +1,4 @@
-#include <stdint.h>     /* Declarations of uint_32 and the like */
+#include <stdint.h>
 
-screenstate yoot;
+screenstate current_screen;
 uint8_t iconn[512];

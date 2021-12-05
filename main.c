@@ -7,7 +7,7 @@
 
    For copyright and licensing, see file COPYING */
 
-#include <stdint.h>     /* Declarations of uint_32 and the like */
+#include <stdint.h>
 #include <pic32mx.h> /* Declarations of system-specific addresses etc */
 #include "graphics.h"
 #include "image_arrays.h"
@@ -58,15 +58,16 @@ int main(void) {
 
     display_init();
     display_update();
-
+    draw_entire_display(&current_screen);
     // loop image
     yeet:
-    while (yoot.current_scroll_amount < yoot.entire_image_width - 128) {
-        set_entire_display(&yoot);
-        quicksleep(50000);
-        yoot.current_scroll_amount += 1;
+    while (current_screen.current_scroll_amount <= current_screen.entire_image_width - 128) {
+        add_object_to_screen(&player, &current_screen);
+        draw_entire_display(&current_screen);
+        quicksleep(5000000);
+//        current_screen.current_scroll_amount += 1;
     }
-    yoot.current_scroll_amount = 0;
+//    current_screen.current_scroll_amount = 0;
     goto yeet;
 
 

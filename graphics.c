@@ -6,9 +6,10 @@
 
    For copyright and licensing, see file COPYING */
 
-#include <stdint.h>  /* Declarations of uint_32 and the like */
+#include <stdint.h>
 #include <pic32mx.h> /* Declarations of system-specific addresses etc */
 #include "graphics.h" // Declarations for this file
+#include "image_arrays.h"
 
 /* Declare a helper function which is local to this file */
 static void num32asc(char *s, int);
@@ -48,7 +49,7 @@ uint8_t display_send_byte(uint8_t data) {
 }
 
 // Reference: https://digilent.com/reference/_media/chipkit_shield_basic_io_shield:chipkit_basic_io_shield_rm.pdf
-void set_entire_display(screenstate *state) {
+void draw_entire_display(screenstate *state) {
     // page = display memory page number, col = column in display memory page
     int page, col;
 
@@ -67,13 +68,56 @@ void set_entire_display(screenstate *state) {
 
         // Fill the current page with its corresponding bytes
         for (col = 0; col < 128; col++) // 128 bytes per page (screen width)
+        {
             display_send_byte(
-                    ~state->entire_image[
-                            page * state->entire_image_width // y-coordinates (page)
-                            + col + state->current_scroll_amount // x-coordinates (column)
-                    ]
-            )
+                    state->current_image[page * 128 + col]
+            );
+        }
     }
+}
+
+/// Sets current_screen.current_image to the correct (scrolled) view of current_screen.entire_image
+void update_current_screen() {
+    // page = display memory page number, col = column in display memory page
+    int page, col;
+
+    // There are 4 display pages, each of which corresponds to 1/4 of the screen, horizontally divided.
+    for (page = 0; page < 4; page++) // For each display memory page
+    {
+        // Fill the current page with its corresponding bytes from the entire image
+        for (col = 0; col < 128; col++) // 128 bytes per page (screen width)
+        {
+            uint8_t byte_to_draw;
+            byte_to_draw = current_screen.entire_image[
+                    page * current_screen.entire_image_width // y-coordinates (page)
+                    + col + current_screen.current_scroll_amount // x-coordinates (column)
+            ];
+            current_screen.current_image[page * 128 + col] = byte_to_draw;
+        }
+    }
+}
+
+
+/// Draws the object at object.pos, on top of what's currently in current_screen.current_image
+void add_object_to_screen(object * obj, screenstate * state) {
+    int page, col, i, j;
+    uint8_t obj_width = obj->size.x;
+    uint8_t obj_x = obj->pos.x;
+    uint8_t obj_y = obj->pos.y;
+    uint8_t positioned_obj[512];
+    for (col = 0; col < obj_width; col++){
+//        temp = obj->image[i] + (obj->image[obj_width+i] << 8) + (obj->image[2*obj_width+i] << 16) + (obj->image[3*obj_width+i] << 24);
+        uint32_t temp = obj->image[col] << obj_y;
+        for (page = 0; page < 4; page++){
+            state->current_image[page * 128 + obj_x + col] |= 0xFF & (temp >> 8*page);
+        }
+    }
+
+//    for (page = 0; page < 4; page++) {
+//        for (col = 0; col < obj_width; col++) {
+//            state->current_image[page * 128 + obj_x + col] |= positioned_obj[page * obj_width + col];
+//        }
+//    }
 }
 
 
