@@ -5,14 +5,20 @@
 #include <stdint.h>
 
 typedef struct vec2 {
-    uint32_t x;
-    uint32_t y;
+    int32_t x;
+    int32_t y;
 } vec2;
 
 typedef struct object {
     vec2 size;
     vec2 pos;
+    vec2 vel;
     uint32_t image[]; // flexible array member
 } object;
+
+void move_object(object * obj);
+uint8_t check_ground_collision(object * obj);
+void check_player_collision();
+uint8_t player_jumpflag;
 
 object player;

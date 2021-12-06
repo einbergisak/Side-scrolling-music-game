@@ -7,6 +7,7 @@
    For copyright and licensing, see file COPYING */
 
 #include <stdint.h>
+#include <math.h>
 #include <pic32mx.h> /* Declarations of system-specific addresses etc */
 #include "graphics.h" // Declarations for this file
 #include "image_arrays.h"
@@ -102,11 +103,11 @@ void update_current_screen() {
 void add_object_to_screen(object * obj, screenstate * state) {
     int page, col, i, j;
     uint8_t obj_width = obj->size.x;
-    uint8_t obj_x = obj->pos.x;
-    uint8_t obj_y = obj->pos.y;
-    uint8_t positioned_obj[512];
+    int8_t obj_x = obj->pos.x;
+    int8_t obj_y = obj->pos.y;
     for (col = 0; col < obj_width; col++){
 //        temp = obj->image[i] + (obj->image[obj_width+i] << 8) + (obj->image[2*obj_width+i] << 16) + (obj->image[3*obj_width+i] << 24);
+
         uint32_t temp = obj->image[col] << obj_y;
         for (page = 0; page < 4; page++){
             state->current_image[page * 128 + obj_x + col] |= 0xFF & (temp >> 8*page);

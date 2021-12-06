@@ -56,18 +56,40 @@ int main(void) {
     /* SPI2CON bit ON = 1; */
     SPI2CONSET = 0x8000;
 
+
+    // Button 1
+    TRISFSET = 0b10;
+
+    // LEDs
+    TRISE &= ~0xFF;
+    PORTE &= ~0xFF;
+
     display_init();
     display_update();
     draw_entire_display(&current_screen);
     // loop image
     yeet:
     while (current_screen.current_scroll_amount <= current_screen.entire_image_width - 128) {
+        if (PORTF & 0b10 && player_jumpflag == 0){
+            player.vel.y = -5;
+            player_jumpflag = 1;
+        }
+
+        // För att kolla om programmet kraschar:
+        // if (PORTE == 1){
+        //     PORTE = 0;
+        // } else{
+        //     PORTE = 1;
+        // }
+
+        move_object(&player);
         add_object_to_screen(&player, &current_screen);
         draw_entire_display(&current_screen);
-        quicksleep(5000000);
-//        current_screen.current_scroll_amount += 1;
+        update_current_screen();
+        quicksleep(130000);
+       current_screen.current_scroll_amount += 1;
     }
-//    current_screen.current_scroll_amount = 0;
+   current_screen.current_scroll_amount = 0;
     goto yeet;
 
 
