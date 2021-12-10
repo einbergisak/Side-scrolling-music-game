@@ -41,7 +41,9 @@ void move_object(object *obj)
         for (i = 0; i < obj->vel.y * ydir; i++)
         {
                 obj->pos.y += 1 * ydir;
-
+                add_object_to_screen(&player, &current_screen);
+                draw_entire_display(&current_screen);
+                update_current_screen();
                 // If touching the ground, stop descending.
                 if (check_ground_collision(obj))
                 {
@@ -64,16 +66,34 @@ uint8_t check_ground_collision(object *obj)
                 for (page = 0; page < 4; page++)
                 {
                         // temp = obj->image[i] + (obj->image[obj_width+i] << 8) + (obj->image[2*obj_width+i] << 16) + (obj->image[3*obj_width+i] << 24);
-                        if ((current_screen.current_image[page * 128 + obj->pos.x + col] & temp >> 8*page) > 0)
+                        if (current_screen.current_image[page * 128 + obj->pos.x + col] & temp >> 8*page)
                         {
                                 obj->vel.y = 0;
                                 obj->pos.y -= 1;
                                 return 1;
                         }
                 }
-
-                return 0;
         }
+    return 0;
+}
+
+void check_roof_collision(){
+
+}
+
+uint8_t check_wall_collision(object * obj){
+        int page;
+
+        uint32_t temp = obj->image[obj->size.x-1] << obj->pos.y;   // shift rightmost column into position
+//        temp &= ~(1 << (obj->pos.y+obj->size.y-1)); // Mask out bit representing bottom pixel in column.
+        for (page = 0; page < 4; page++){
+                if (current_screen.current_image[page*128 + obj->pos.x + obj->size.x - 1] & temp >> page*8){
+                        return 1;
+                }
+
+        }
+        return 0;
+
 }
 
 void check_player_collision()
