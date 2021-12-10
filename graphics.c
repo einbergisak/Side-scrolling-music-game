@@ -121,6 +121,23 @@ void add_object_to_screen(object * obj, screenstate * state) {
 //    }
 }
 
+void move_background(uint8_t amount){
+    current_screen.current_scroll_amount += amount;
+    if (check_wall_collision(&player)){
+        show_game_over_screen();
+    }
+}
+
+void show_game_over_screen(){
+    put_string(1, "Game over");
+    display_textbuffer();
+    quicksleep(10000000);
+    put_string(1, "Game over");
+    put_string(3, "bitch.");
+    display_textbuffer();
+    while (1);
+    return;
+}
 
 void display_init(void) {
     DISPLAY_CHANGE_TO_COMMAND_MODE;
@@ -152,7 +169,8 @@ void display_init(void) {
     display_send_byte(0xAF);
 }
 
-void display_string(int line, char *s) {
+// Puts string in textbuffer, show with display_textbuffer()
+void put_string(int line, char *s) {
     int i;
     if (line < 0 || line >= 4)
         return;
@@ -167,7 +185,8 @@ void display_string(int line, char *s) {
             textbuffer[line][i] = ' ';
 }
 
-void display_update(void) {
+// Renders content from textbuffer
+void display_textbuffer(void) {
     int i, j, k;
     int c;
     for (i = 0; i < 4; i++) {
@@ -189,4 +208,47 @@ void display_update(void) {
                 display_send_byte(font[c * 8 + k]);
         }
     }
+}
+
+
+/*
+ * itoa
+ *
+ * Simple conversion routine
+ * Converts binary to decimal numbers
+ * Returns pointer to (static) char array
+ */
+#define ITOA_BUFSIZ ( 24 )
+char * itoaconv( int num )
+{
+  register int i, sign;
+  static char itoa_buffer[ ITOA_BUFSIZ ];
+  static const char maxneg[] = "-2147483648";
+
+  itoa_buffer[ ITOA_BUFSIZ - 1 ] = 0;   /* Insert the end-of-string marker. */
+  sign = num;                           /* Save sign. */
+  if( num < 0 && num - 1 > 0 )          /* Check for most negative integer */
+  {
+    for( i = 0; i < sizeof( maxneg ); i += 1 )
+    itoa_buffer[ i + 1 ] = maxneg[ i ];
+    i = 0;
+  }
+  else
+  {
+    if( num < 0 ) num = -num;           /* Make number positive. */
+    i = ITOA_BUFSIZ - 2;                /* Location for first ASCII digit. */
+    do {
+      itoa_buffer[ i ] = num % 10 + '0';/* Insert next digit. */
+      num = num / 10;                   /* Remove digit from number. */
+      i -= 1;                           /* Move index to next empty position. */
+    } while( num > 0 );
+    if( sign < 0 )
+    {
+      itoa_buffer[ i ] = '-';
+      i -= 1;
+    }
+  }
+  /* Since the loop always sets the index i to the next empty position,
+   * we must add 1 in order to return a pointer to the first occupied position. */
+  return( &itoa_buffer[ i + 1 ] );
 }

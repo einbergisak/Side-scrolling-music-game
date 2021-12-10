@@ -65,7 +65,6 @@ int main(void) {
     PORTE &= ~0xFF;
 
     display_init();
-    display_update();
     draw_entire_display(&current_screen);
     // loop image
     yeet:
@@ -82,12 +81,12 @@ int main(void) {
         //     PORTE = 1;
         // }
 
+        move_background(1);
         move_object(&player);
         add_object_to_screen(&player, &current_screen);
         draw_entire_display(&current_screen);
         update_current_screen();
         quicksleep(130000);
-       current_screen.current_scroll_amount += 1;
     }
    current_screen.current_scroll_amount = 0;
     goto yeet;

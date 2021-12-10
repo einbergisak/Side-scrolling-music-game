@@ -23,8 +23,13 @@ void display_init(void);
 void display_string(int line, char *s);
 
 void display_update(void);
+void move_background(uint8_t amount);
 
 uint8_t display_send_byte(uint8_t data);
+void show_game_over_screen();
+void display_textbuffer();
+void put_string(int line, char * s);
+char * itoaconv(int num);
 
 /* Declare bitmap array containing font */
 extern const uint8_t const font[128 * 8];
