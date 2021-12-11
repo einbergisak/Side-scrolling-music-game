@@ -20,15 +20,13 @@ void draw_entire_display(screenstate *state);
 
 void display_init(void);
 
-void display_string(int line, char *s);
-
 void display_update(void);
-void move_background(uint8_t amount);
+void move_background(screenstate  * state, uint8_t amount);
 
 uint8_t display_send_byte(uint8_t data);
-void show_game_over_screen();
+void game_over();
 void show_highscore_screen();
-void display_textbuffer();
+void add_textbuffer_to_screen(screenstate * state);
 void put_string(int line, char * s);
 char * itoaconv(int num);
 

@@ -1,4 +1,5 @@
 #include <stdint.h>
 #include "screenstate.h"
 
-screenstate current_screen;
+screenstate stage1_screen;
+screenstate game_over_screen;

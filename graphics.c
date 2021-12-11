@@ -77,8 +77,8 @@ void draw_entire_display(screenstate *state) {
     }
 }
 
-/// Sets current_screen.current_image to the correct (scrolled) view of current_screen.entire_image
-void update_current_screen() {
+/// Sets state.current_image to the correct (scrolled) view of state.entire_image
+void refresh_screen(screenstate * state) {
     // page = display memory page number, col = column in display memory page
     int page, col;
 
@@ -89,17 +89,17 @@ void update_current_screen() {
         for (col = 0; col < 128; col++) // 128 bytes per page (screen width)
         {
             uint8_t byte_to_draw;
-            byte_to_draw = current_screen.entire_image[
-                    page * current_screen.entire_image_width // y-coordinates (page)
-                    + col + current_screen.current_scroll_amount // x-coordinates (column)
+            byte_to_draw = state->entire_image[
+                    page * state->entire_image_width // y-coordinates (page)
+                    + col + state->current_scroll_amount // x-coordinates (column)
             ];
-            current_screen.current_image[page * 128 + col] = byte_to_draw;
+            state->current_image[page * 128 + col] = byte_to_draw;
         }
     }
 }
 
 
-/// Draws the object at object.pos, on top of what's currently in current_screen.current_image
+/// Draws the object at object.pos, on top of what's currently in state.current_image
 void add_object_to_screen(object *obj, screenstate *state) {
     int page, col;
     uint8_t obj_width = obj->size.x;
@@ -107,10 +107,10 @@ void add_object_to_screen(object *obj, screenstate *state) {
     int8_t obj_y = obj->pos.y;
     uint32_t temp;
     for (col = 0; col < obj_width; col++) {
-        if (obj_y < 0){ // out of bounds invisibility
-            temp = obj->image[col] >> (obj_y*-1);
-        }else {
-        temp = obj->image[col] << obj_y;
+        if (obj_y < 0) { // out of bounds invisibility
+            temp = obj->image[col] >> (obj_y * -1);
+        } else {
+            temp = obj->image[col] << obj_y;
         }
         for (page = 0; page < 4; page++) {
             state->current_image[page * 128 + obj_x + col] |= 0xFF & (temp >> 8 * page);
@@ -118,29 +118,32 @@ void add_object_to_screen(object *obj, screenstate *state) {
     }
 }
 
-void move_background(uint8_t amount) {
-    current_screen.current_scroll_amount += amount;
-    if (check_wall_collision(&player)) {
-//        show_game_over_screen();
+void move_background(screenstate * state, uint8_t amount) {
+    state->current_scroll_amount += amount;
+    if (check_wall_collision(state, &player)) {
+//        game_over();
         show_highscore_screen();
     }
 }
 
-void show_game_over_screen() {
-    put_string(1, "Game over");
-    display_textbuffer();
-    quicksleep(10000000);
-    put_string(1, "Game over");
-    put_string(3, "bitch.");
-    display_textbuffer();
-    while (1);
-    return;
-}
+//void game_over() {
+//    current_screen = game_over_screen;
+//    put_string(1, "Game over");
+//    display_textbuffer();
+//    quicksleep(10000000);
+//    put_string(1, "Game over");
+//    put_string(3, "bitch.");
+//    display_textbuffer();
+//    while (1);
+//    return;
+//}
 
 void show_highscore_screen() {
-    uint8_t pointer = 0;
-    uint8_t btnflag = 0;
+    uint8_t pointer = 0; // value is which letter is being selected
+    uint8_t btnflag = 0; // if button was pressed
     char arr[4] = {'A', 'A', 'A', 'A'};
+
+    selectarrow.pos.y = 24;
     while (1) {
         if (!btnflag) {
             if ((PORTD & 0b100000)) { // if btn2
@@ -166,14 +169,17 @@ void show_highscore_screen() {
             }
         } else if (!(PORTD & 0b11100000)) { // btns 234 are not pressed
             btnflag = 0;
-
-            // screen bugfix (but causes flickering)
-            display_textbuffer();
+            refresh_screen(&game_over_screen);
+            selectarrow.pos.x = pointer*8;
+            add_object_to_screen(&selectarrow, &game_over_screen);
 
             put_string(0, "New highscore!");
             put_string(1, "Enter your name:");
-            put_string(2,  arr); // arr skickar med ett frågetecken av nån anledning. nullbyte ?
-            display_textbuffer();
+            put_string(2, arr); // arr skickar med ett frågetecken av nån anledning. nullbyte ?
+
+            add_textbuffer_to_screen(&game_over_screen);
+
+            draw_entire_display(&game_over_screen);
         }
         quicksleep(140000);
     }
@@ -227,26 +233,18 @@ void put_string(int line, char *s) {
 }
 
 // Renders content from textbuffer
-void display_textbuffer(void) {
-    int i, j, k;
-    int c;
-    for (i = 0; i < 4; i++) {
-        DISPLAY_CHANGE_TO_COMMAND_MODE;
-        display_send_byte(0x22);
-        display_send_byte(i);
-
-        display_send_byte(0x0);
-        display_send_byte(0x10);
-
-        DISPLAY_CHANGE_TO_DATA_MODE;
-
-        for (j = 0; j < 16; j++) {
-            c = textbuffer[i][j];
-            if (c & 0x80)
+void add_textbuffer_to_screen(screenstate * state) {
+    int page, letter_pos, column;
+    int letter;
+    for (page = 0; page < 4; page++) {
+        for (letter_pos = 0; letter_pos < 16; letter_pos++) {
+            letter= textbuffer[page][letter_pos];
+            if (letter >= 0x80 || letter < 0x20)
                 continue;
 
-            for (k = 0; k < 8; k++)
-                display_send_byte(font[c * 8 + k]);
+            for (column = 0; column < 8; column++) {
+                state->current_image[page * 128 + letter_pos * 8 + column] |= font[letter * 8 + column];
+            }
         }
     }
 }

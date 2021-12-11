@@ -65,30 +65,38 @@ int main(void) {
     PORTE &= ~0xFF;
 
     display_init();
-    draw_entire_display(&current_screen);
+    refresh_screen(&stage1_screen);
+    draw_entire_display(&stage1_screen);
     // loop image
-    yeet:
-    while (current_screen.current_scroll_amount <= current_screen.entire_image_width - 128) {
+    yeet: while (stage1_screen.current_scroll_amount <= stage1_screen.entire_image_width - 128) {
         if (PORTF & 0b10 && player_jumpflag == 0){
             player.vel.y = -5;
             player_jumpflag = 1;
         }
 
-        // För att kolla om programmet kraschar:
-        // if (PORTE == 1){
-        //     PORTE = 0;
-        // } else{
-        //     PORTE = 1;
-        // }
+        if ((PORTD & 0b1000000) && player.pos.x > 0){ // move left
+            player.vel.x = -1;
+        } else if ((PORTD & 0b100000) && player.pos.x < 127){ // move right
+            player.vel.x = 1;
+        } else{
+            player.vel.x = 0;
+        }
 
-        move_background(1);
-        move_object(&player);
-        add_object_to_screen(&player, &current_screen);
-        draw_entire_display(&current_screen);
-        update_current_screen();
+//         För att kolla om programmet kraschar:
+         if (PORTE == 1){
+             PORTE = 0;
+         } else{
+             PORTE = 1;
+         }
+        refresh_screen(&stage1_screen);
+        move_background(&stage1_screen, 1);
+        move_object(&stage1_screen, &player);
+        add_object_to_screen(&player, &stage1_screen);
+        draw_entire_display(&stage1_screen);
+
         quicksleep(130000);
     }
-   current_screen.current_scroll_amount = 0;
+   stage1_screen.current_scroll_amount = 0;
     goto yeet;
 
 

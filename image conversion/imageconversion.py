@@ -1,6 +1,8 @@
+# Written by I Einberg 2021
+
 from PIL import Image
 
-image = Image.open("yeet.png")
+image = Image.open("black.png")
 
 width = image.width
 
