@@ -27,6 +27,7 @@ void move_background(uint8_t amount);
 
 uint8_t display_send_byte(uint8_t data);
 void show_game_over_screen();
+void show_highscore_screen();
 void display_textbuffer();
 void put_string(int line, char * s);
 char * itoaconv(int num);

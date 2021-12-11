@@ -17,10 +17,9 @@ typedef struct object {
 } object;
 
 void move_object(object * obj);
-uint8_t check_ground_collision(object * obj);
+uint8_t check_vertical_collision(object * obj);
 void check_player_collision();
 uint8_t check_wall_collision(object * obj);
-void check_roof_collision();
 uint8_t player_jumpflag;
 
 object player;

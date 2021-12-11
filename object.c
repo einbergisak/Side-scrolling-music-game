@@ -8,7 +8,7 @@
 object player = {
     .image = {0b111110, 0b100011, 0b100101, 0b100101, 0b100011, 0b111110}, // 6x6 cube,
     .size = {.x = 6, .y = 6},
-    .pos = {.x = 5, .y = 15},
+    .pos = {.x = 0, .y = 0},
     .vel = {.x = 0, .y = 0}};
 
 uint8_t player_jumpflag = 0;
@@ -41,48 +41,55 @@ void move_object(object *obj)
         for (i = 0; i < obj->vel.y * ydir; i++)
         {
                 obj->pos.y += 1 * ydir;
-                add_object_to_screen(&player, &current_screen);
-                draw_entire_display(&current_screen);
-                update_current_screen();
+
+
+
                 // If touching the ground, stop descending.
-                if (check_ground_collision(obj))
+                if (obj->pos.y >= 0 && check_vertical_collision(obj))
                 {
-                        player_jumpflag = 0;
                         break;
-                };
+                }
         }
 
         obj->vel.y += 1;
 }
 
-uint8_t check_ground_collision(object *obj)
+uint8_t check_vertical_collision(object *obj)
 {
-        int col, page;
+        uint8_t col, page;
+        uint32_t temp, bottom_index, top_pixel, bottom_pixel;
         for (col = 0; col < obj->size.x; col++)
         {
-                uint32_t temp = obj->image[col] << obj->pos.y;          // shift image into position
-                uint32_t bottom_index = (obj->pos.y + obj->size.y - 1); // calculate y-position of obj bottom.
-                temp &= (0x00000001 << bottom_index);                   // mask out the bottom pixel
+                temp = obj->image[col] << obj->pos.y;          // shift image into position
+                bottom_index = (obj->pos.y + obj->size.y - 1); // calculate y-position of obj bottom.
+                top_pixel = temp & (0x1 << obj->pos.y);
+                bottom_pixel = temp & (0x00000001 << bottom_index);                   // mask out the bottom pixel
                 for (page = 0; page < 4; page++)
                 {
                         // temp = obj->image[i] + (obj->image[obj_width+i] << 8) + (obj->image[2*obj_width+i] << 16) + (obj->image[3*obj_width+i] << 24);
-                        if (current_screen.current_image[page * 128 + obj->pos.x + col] & temp >> 8*page)
+                        if (current_screen.current_image[page * 128 + obj->pos.x + col] & bottom_pixel >> 8*page)
                         {
                                 obj->vel.y = 0;
                                 obj->pos.y -= 1;
+                                player_jumpflag = 0;
                                 return 1;
+                        }
+                        if (current_screen.current_image[page * 128 + obj->pos.x + col] & top_pixel >> 8*page){
+                            obj->vel.y *= -1;
+                            obj->pos.y += 1;
+                            return 1;
                         }
                 }
         }
     return 0;
 }
 
-void check_roof_collision(){
-
-}
-
 uint8_t check_wall_collision(object * obj){
         int page;
+
+        if (obj->pos.y < 0){ // wrap invincibility
+            return 0;
+        }
 
         uint32_t temp = obj->image[obj->size.x-1] << obj->pos.y;   // shift rightmost column into position
 //        temp &= ~(1 << (obj->pos.y+obj->size.y-1)); // Mask out bit representing bottom pixel in column.

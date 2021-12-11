@@ -12,7 +12,6 @@
 #include "graphics.h"
 #include "image_arrays.h"
 
-
 int main(void) {
     /*
       This will set the peripheral bus clock to the same frequency
@@ -59,7 +58,8 @@ int main(void) {
 
     // Button 1
     TRISFSET = 0b10;
-
+    // Buttons 2 & 3 & 4
+    TRISDSET = 0b11100000;
     // LEDs
     TRISE &= ~0xFF;
     PORTE &= ~0xFF;
