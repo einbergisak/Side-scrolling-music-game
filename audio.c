@@ -65,32 +65,13 @@ void audio_init()
 }
 
 unsigned int audio_counter = 0;
-void update_audio()
-{
+void update_audio() {
   int out = 0;
-  if (cur_tones & 0x1)
-  {
-    out += tone_at_count(audio_counter, 0);
-  }
-  if (cur_tones & 0x2)
-  {
-    out += tone_at_count(audio_counter, 1);
-  }
-  if (cur_tones & 0x4)
-  {
-    out += tone_at_count(audio_counter, 2);
-  }
-  if (cur_tones & 0x8)
-  {
-    out += tone_at_count(audio_counter, 3);
-  }
-  if (cur_tones & 0x10)
-  {
-    out += tone_at_count(audio_counter, 4);
-  }
-  if (cur_tones & 0x20)
-  {
-    out += tone_at_count(audio_counter, 5);
+  int n;
+  for (n = 0; n < 8; n++) {
+    if (cur_tones & 1 << n) {
+      out += tone_at_count(audio_counter, n);
+    }
   }
   PORTE = 128 + out;
   audio_counter++;
