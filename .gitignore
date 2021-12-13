@@ -4,6 +4,7 @@
 *.hex
 .deps
 .vscode/
+.idea
 .DS_Store
 test.txt
 test/

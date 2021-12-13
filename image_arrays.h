@@ -1,4 +1,9 @@
-#include <stdint.h>	 /* Declarations of uint_32 and the like */
+#include <stdint.h>
+#include "screenstate.h"
 
-uint8_t yeet[2048];
-uint8_t iconn[512];
+screenstate stage1_screen;
+screenstate stage2_screen;
+screenstate enter_highscore_screen;
+screenstate highscore_screen;
+screenstate main_menu_screen;
+screenstate level_selection_screen;
