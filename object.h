@@ -1,7 +1,8 @@
 //
 // Created by Isak on 2021-12-05.
 //
-
+#ifndef OBJECT_H
+#define OBJECT_H
 #include <stdint.h>
 #include "screenstate.h"
 
@@ -17,7 +18,7 @@ typedef struct object {
     uint32_t image[]; // flexible array member
 } object;
 
-void move_object(screenstate * state, object * obj);
+int move_object(screenstate * state, object * obj);
 uint8_t check_vertical_collision(screenstate * state, object * obj);
 void check_player_collision();
 uint8_t check_wall_collision(screenstate * state, object * obj);
@@ -25,3 +26,4 @@ uint8_t player_jumpflag;
 
 object player;
 object selectarrow;
+#endif

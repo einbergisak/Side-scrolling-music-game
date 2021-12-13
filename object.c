@@ -18,7 +18,8 @@ object selectarrow = {
 
 uint8_t player_jumpflag = 0;
 
-void move_object(screenstate * state, object *obj) {
+// if 1 then the game is over.
+int move_object(screenstate * state, object *obj) {
     int i, xdir, ydir;
 
     if (obj->vel.x < 0) {
@@ -26,15 +27,25 @@ void move_object(screenstate * state, object *obj) {
     } else {
         xdir = 1;
     }
+
+    // easy but dumb way to check if the object is the player
+        if (check_wall_collision(state, obj) && obj->pos.x == player.pos.x && obj->pos.y == player.pos.y) {
+            game_over();
+            return 1;
+        }
+
+    // for each movement in x direction.
     for (i = 0; i < obj->vel.x * xdir; i++) {
         obj->pos.x += 1 * xdir;
 
         // easy but dumb way to check if the object is the player
         if (check_wall_collision(state, obj) && obj->pos.x == player.pos.x && obj->pos.y == player.pos.y) {
-            show_highscore_screen();
+            game_over();
+            return 1;
         }
     }
 
+    // for each movement in y direction
     if (obj->vel.y < 0) {
         ydir = -1;
     } else {
@@ -43,15 +54,16 @@ void move_object(screenstate * state, object *obj) {
     for (i = 0; i < obj->vel.y * ydir; i++) {
         obj->pos.y += 1 * ydir;
 
-
-
         // If touching the ground, stop descending.
-        if (obj->pos.y >= 0 && check_vertical_collision(state, obj)) {
+        if (obj->pos.y >= obj->size.y && check_vertical_collision(state, obj)) {
             break;
+        } else if (obj->pos.y > 32 - obj->size.y){
+            game_over();
         }
     }
 
     obj->vel.y += 1;
+    return 0;
 }
 
 uint8_t check_vertical_collision(screenstate * state, object *obj) {

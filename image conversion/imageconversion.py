@@ -2,7 +2,7 @@
 
 from PIL import Image
 
-image = Image.open("black.png")
+image = Image.open("levelselection.png")
 
 width = image.width
 

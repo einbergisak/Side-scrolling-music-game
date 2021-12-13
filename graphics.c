@@ -11,6 +11,7 @@
 #include <pic32mx.h> /* Declarations of system-specific addresses etc */
 #include "graphics.h" // Declarations for this file
 #include "image_arrays.h"
+#include "highscore.h"
 
 /* Declare a helper function which is local to this file */
 static void num32asc(char *s, int);
@@ -120,70 +121,9 @@ void add_object_to_screen(object *obj, screenstate *state) {
 
 void move_background(screenstate * state, uint8_t amount) {
     state->current_scroll_amount += amount;
-    if (check_wall_collision(state, &player)) {
-//        game_over();
-        show_highscore_screen();
-    }
-}
-
-//void game_over() {
-//    current_screen = game_over_screen;
-//    put_string(1, "Game over");
-//    display_textbuffer();
-//    quicksleep(10000000);
-//    put_string(1, "Game over");
-//    put_string(3, "bitch.");
-//    display_textbuffer();
-//    while (1);
-//    return;
-//}
-
-void show_highscore_screen() {
-    uint8_t pointer = 0; // value is which letter is being selected
-    uint8_t btnflag = 0; // if button was pressed
-    char arr[4] = {'A', 'A', 'A', 'A'};
-
-    selectarrow.pos.y = 24;
-    while (1) {
-        if (!btnflag) {
-            if ((PORTD & 0b100000)) { // if btn2
-                if (pointer < 3) {
-                    pointer += 1;
-                }
-                btnflag = 1;
-            } else if ((PORTD & 0b1000000)) { // if btn3
-                if (pointer > 0) {
-                    pointer -= 1;
-                }
-                btnflag = 1;
-            } else if ((PORTD & 0b10000000)) { // if btn4
-                if (arr[pointer] == 'Z') {
-                    arr[pointer] = 'A';
-                } else {
-                    arr[pointer]++;
-                }
-                btnflag = 1;
-            } else if ((PORTF & 0b10)) { // if btn1
-
-                btnflag = 1;
-            }
-        } else if (!(PORTD & 0b11100000)) { // btns 234 are not pressed
-            btnflag = 0;
-            refresh_screen(&game_over_screen);
-            selectarrow.pos.x = pointer*8;
-            add_object_to_screen(&selectarrow, &game_over_screen);
-
-            put_string(0, "New highscore!");
-            put_string(1, "Enter your name:");
-            put_string(2, arr); // arr skickar med ett frågetecken av nån anledning. nullbyte ?
-
-            add_textbuffer_to_screen(&game_over_screen);
-
-            draw_entire_display(&game_over_screen);
-        }
-        quicksleep(140000);
-    }
-
+    // if (check_wall_collision(state, &player)) { //TODO: Test att kolla om denna går att yeeta bort
+    //    game_over();
+    // }
 }
 
 void display_init(void) {

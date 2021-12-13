@@ -25,7 +25,6 @@ void move_background(screenstate  * state, uint8_t amount);
 
 uint8_t display_send_byte(uint8_t data);
 void game_over();
-void show_highscore_screen();
 void add_textbuffer_to_screen(screenstate * state);
 void put_string(int line, char * s);
 char * itoaconv(int num);
