@@ -5,8 +5,8 @@
 #include <math.h>
 
 char highscore_list[3][8] = {"        ", "        ", "        "};
+int current_score = 0;
 int current_highscore = 0;
-
 
 /// Shows the screen with the highscore input interface
 void show_enter_highscore_screen()
@@ -26,6 +26,8 @@ void show_enter_highscore_screen()
 
             put_string(0, "New highscore!");
             put_string(1, "Enter your name:");
+            put_string(2, "         ");
+            put_string(3, "         ");
             put_short_string(2, arr, 4);
 
             add_textbuffer_to_screen(&enter_highscore_screen);
@@ -78,18 +80,24 @@ void show_enter_highscore_screen()
                     *(*(highscore_list) + i) = arr[i];
                 }
                 *(*(highscore_list) + 4) = ' ';
-                *(*(highscore_list) + 5) = *itoaconv(current_highscore);
+                char *score = itoaconv(current_score);
+                *(*(highscore_list) + 5) = *score;
+
+
                 int num_digits;
-                if (current_highscore < 10)
+                if (current_score < 10)
                 {
                     num_digits = 1;
                 }
-                else if (current_highscore < 100)
+                else if (current_score < 100)
                 {
                     num_digits = 2;
+                    *(*(highscore_list) + 6) = *(score + 1);
                 }
                 else
                 {
+                    *(*(highscore_list) + 6) = *(score + 1);
+                    *(*(highscore_list) + 7) = *(score + 2);
                     num_digits = 3;
                 }
                 *(*(highscore_list) + 5 + num_digits) = '%';
@@ -97,7 +105,6 @@ void show_enter_highscore_screen()
                 return;
             }
         }
-
     }
 }
 
@@ -146,7 +153,8 @@ void put_short_string(int line, char *s, int num)
         }
         else
             textbuffer[line][i] = ' ';
-    for (; i < 16; i++){
+    for (; i < 16; i++)
+    {
         textbuffer[line][i] = ' ';
     }
 }

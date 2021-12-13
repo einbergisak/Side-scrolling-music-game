@@ -19,7 +19,6 @@ void add_object_to_screen(object * obj, screenstate * state);
 void draw_entire_display(screenstate *state);
 
 void display_init(void);
-void display_isr();
 
 void display_update(void);
 void move_background(screenstate  * state, uint8_t amount);

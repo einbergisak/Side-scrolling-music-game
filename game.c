@@ -11,6 +11,7 @@ screenstate *current_level_screen;
 /// The game loop will then run in the sound ISR
 void play_level(int level)
 {
+    current_score = 0;
     player_jumpflag = 1;
     player.vel.x = 0;
     player.vel.y = 0;
@@ -35,9 +36,19 @@ void play_level(int level)
 void game_over()
 {
     ingame = 0;
-    if (1 /*score > current_highscore*/)
+    if (current_score > current_highscore)
     {
+        current_highscore = current_score;
         show_enter_highscore_screen();
+    } else{
+        refresh_screen(&game_over_screen);
+        put_short_string(0, "",0);
+        put_short_string(1, "   GAME OVER",12);
+        put_short_string(2, "   YOU LOST",11);
+        put_short_string(0, "",0);
+        add_textbuffer_to_screen(&game_over_screen);
+        draw_entire_display(&game_over_screen);
+        quicksleep(100000000);
     }
     return;
 }
@@ -90,16 +101,19 @@ void update_game()
         add_object_to_screen(&player, current_level_screen);
         draw_entire_display(current_level_screen);
         // Highscore is percentage of level completed
-        current_highscore = (current_level_screen->current_scroll_amount * 100) / (current_level_screen->entire_image_width - 128);
+        current_score = (current_level_screen->current_scroll_amount * 100) / (current_level_screen->entire_image_width - 128);
     }
     else
     {
+        refresh_screen(&game_over_screen);
+        put_string(0, "YOU WON!!!!!!!!!");
+        put_string(1, "YOU WON!!!!!!!!!");
+        put_string(2, "YOU WON!!!!!!!!!");
+        put_string(3, "YOU WON!!!!!!!!!");
+        add_textbuffer_to_screen(&game_over_screen);
+        draw_entire_display(&game_over_screen);
+        quicksleep(100000000);
         game_over();
-        refresh_screen(current_level_screen);
-        put_string(2, "YOU WON!");
-        add_textbuffer_to_screen(current_level_screen);
-        draw_entire_display(current_level_screen);
-        quicksleep(3500000);
     }
 }
 

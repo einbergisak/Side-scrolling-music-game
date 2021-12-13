@@ -28,9 +28,6 @@ void user_isr(void) {
       update_game();
 
   }
-  if (IFS(0) & 0x100000000){
-      display_isr();
-  }
 }
 
 /// Main function
