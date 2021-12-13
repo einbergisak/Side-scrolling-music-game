@@ -2,7 +2,7 @@
 
 from PIL import Image
 
-image = Image.open("level1.png")
+image = Image.open("level2.png")
 
 width = image.width
 

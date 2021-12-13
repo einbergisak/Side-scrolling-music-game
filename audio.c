@@ -54,7 +54,7 @@ void audio_init()
   // Song timer initialization
   T3CON = 0x0070;         // Set timer off and prescale to 1:256
   TMR3 = 0x0;             // Reset timer count
-  PR3 = 6250;            // Set period to get total of 0.04 sec
+  PR3 = 6250*1.5;            // Set period to get total of 0.04 sec
   IFSCLR(0) = 0x00001000; // Make sure the time-out flag is cleared
   T3CONSET = 0x8000;      // Turn the timer on again
   IPCSET(3) = 0x1f;       // Set priority to max
