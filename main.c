@@ -8,10 +8,23 @@
    For copyright and licensing, see file COPYING */
 
 #include <stdint.h>
+// Stop autoformatter from changing order
 #include <pic32mx.h> /* Declarations of system-specific addresses etc */
 #include "graphics.h"
+#include "audio.h"
 #include "image_arrays.h"
 #include "menu.h"
+
+
+void user_isr(void) {
+  // Handle audio timer
+  if (IFS(0) & 0x00000100) {
+    audio_isr();
+  }
+  if (IFS(0) & 0x00001000) {
+    song_isr();
+  }
+}
 
 int main(void) {
     /*
