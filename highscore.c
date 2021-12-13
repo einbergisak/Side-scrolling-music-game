@@ -7,6 +7,8 @@
 char highscore_list[3][8] = {"        ", "        ", "        "};
 int current_highscore = 0;
 
+
+/// Shows the screen with the highscore input interface
 void show_enter_highscore_screen()
 {
     uint8_t pointer = 0; // value is which letter is being selected
@@ -99,6 +101,7 @@ void show_enter_highscore_screen()
     }
 }
 
+/// Displays the screen with the highscore list
 void show_highscore_screen()
 {
     while (1)
@@ -126,7 +129,7 @@ void show_highscore_screen()
     }
 }
 
-// Puts string in textbuffer, show with display_textbuffer()
+/// Puts given string in textbuffer
 void put_short_string(int line, char *s, int num)
 {
     int i;

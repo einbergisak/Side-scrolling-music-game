@@ -17,7 +17,7 @@ object selectarrow = {
 
 uint8_t player_jumpflag = 0;
 
-// if 1 then the game is over.
+/// Moves the object if 1 then the game is over.
 int move_object(screenstate *state, object *obj)
 {
     int i, xdir, ydir;
@@ -79,6 +79,8 @@ int move_object(screenstate *state, object *obj)
     return 0;
 }
 
+
+/// Checks if the player collides with a roof or with the ground
 uint8_t check_vertical_collision(screenstate *state, object *obj)
 {
     uint8_t col, page, has_contact = 0;
@@ -113,6 +115,7 @@ uint8_t check_vertical_collision(screenstate *state, object *obj)
     return 0;
 }
 
+/// Checks if the player collides with the wall
 uint8_t check_wall_collision(screenstate *state, object *obj)
 {
     int page;

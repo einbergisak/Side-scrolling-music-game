@@ -37,6 +37,7 @@ void quicksleep(int cyc) {
     for (i = cyc; i > 0; i--);
 }
 
+/// Sents one byte of information through the SPI interface
 uint8_t display_send_byte(uint8_t data) {
     // Wait for transmitter
     while (!(SPI2STAT & 0x08));
@@ -51,6 +52,7 @@ uint8_t display_send_byte(uint8_t data) {
 }
 
 // Reference: https://digilent.com/reference/_media/chipkit_shield_basic_io_shield:chipkit_basic_io_shield_rm.pdf
+/// Renders the given screenstate
 void draw_entire_display(screenstate *state) {
     // page = display memory page number, col = column in display memory page
     int page, col;
@@ -100,7 +102,7 @@ void refresh_screen(screenstate * state) {
 }
 
 
-/// Draws the object at object.pos, on top of what's currently in state.current_image
+/// Draws the object at object->pos, on top of what's currently in state->current_image
 void add_object_to_screen(object *obj, screenstate *state) {
     int page, col;
     uint8_t obj_width = obj->size.x;
@@ -119,28 +121,12 @@ void add_object_to_screen(object *obj, screenstate *state) {
     }
 }
 
+/// Moves the background by the given amount
 void move_background(screenstate * state, uint8_t amount) {
     state->current_scroll_amount += amount;
-    // if (check_wall_collision(state, &player)) { //TODO: Test att kolla om denna går att yeeta bort
-    //    game_over();
-    // }
 }
 
-void display_isr(){
-
-    //         För att kolla om programmet kraschar:
-        //  if (PORTE == 1){
-        //      PORTE = 0;
-        //  } else{
-        //      PORTE = 1;
-        //  }
-
-
-    IFSCLR(0) = 0x10000; // Clear Timer 4 interrupt flag
-    return;
-
-}
-
+/// Initialises the OLED display
 void display_init(void) {
     DISPLAY_CHANGE_TO_COMMAND_MODE;
     quicksleep(10);
@@ -169,19 +155,9 @@ void display_init(void) {
     display_send_byte(0x20);
 
     display_send_byte(0xAF);
-
-
-
-//   T4CON = 0x0070;         // Set timer off and prescale to 1:256
-//   TMR4 = 0x0;             // Reset timer count
-//   PR4 = 6250;             // Set period to get total of 0.04 sec
-//   IFSCLR(0) = 0x10000;    // Make sure the time-out flag is cleared
-//   T4CONSET = 0x8000;      // Turn the timer on again
-//   IPCSET(4) = 0x1f;       // Set priority to max
-//   IECSET(0) = 0x10000;// Enable interupts for Timer 4
 }
 
-// Puts string in textbuffer, show with display_textbuffer()
+/// Puts string in textbuffer, show with display_textbuffer()
 void put_string(int line, char *s) {
     int i;
     if (line < 0 || line >= 4)
@@ -197,7 +173,7 @@ void put_string(int line, char *s) {
             textbuffer[line][i] = ' ';
 }
 
-// Renders content from textbuffer
+/// Adds the content of the textbuffer to the given screenstate
 void add_textbuffer_to_screen(screenstate * state) {
     int page, letter_pos, column;
     int letter;

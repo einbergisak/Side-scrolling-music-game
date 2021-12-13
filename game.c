@@ -6,6 +6,9 @@
 
 int ingame = 0;
 screenstate *current_level_screen;
+
+/// Resets game variables and starts the game by setting ingame = 1
+/// The game loop will then run in the sound ISR
 void play_level(int level)
 {
     player_jumpflag = 1;
@@ -28,7 +31,7 @@ void play_level(int level)
 }
 
 
-
+/// Ends the game
 void game_over()
 {
     ingame = 0;
@@ -36,18 +39,13 @@ void game_over()
     {
         show_enter_highscore_screen();
     }
-    //    put_string(1, "Game over");
-    //    display_textbuffer();
-    //    quicksleep(10000000);
-    //    put_string(1, "Game over");
-    //    put_string(3, "bitch.");
-    //    display_textbuffer();
     return;
 }
 
+/// Moves the level and the player and updates game graphics.
 void update_game()
 {
-
+    // If the game hasn't progressed to its end
     if (current_level_screen->current_scroll_amount <= current_level_screen->entire_image_width - 128)
     {
         if (!btn_dwn_flag)

@@ -16,7 +16,7 @@
 #include "menu.h"
 #include "game.h"
 
-
+/// Interrupt service routine
 void user_isr(void) {
   // Handle audio timer
   if (IFS(0) & 0x00000100) {
@@ -33,6 +33,7 @@ void user_isr(void) {
   }
 }
 
+/// Main function
 int main(void) {
     /*
       This will set the peripheral bus clock to the same frequency

@@ -7,6 +7,7 @@
 #include "object.h"
 #include "highscore.h"
 
+/// Menu where you select which level to play
 void level_selection()
 {
     uint8_t selected = 0;
@@ -29,7 +30,9 @@ void level_selection()
             else if (PORTD & 0b1000000)
             { // if btn3
                 selected = 0;
-            }else if (PORTD & 0b10000000){ //if btn 4
+            }
+            else if (PORTD & 0b10000000)
+            { //if btn 4
                 return;
             }
             if (selected)
@@ -50,6 +53,7 @@ void level_selection()
     }
 }
 
+/// Displays the main menu interface
 void main_menu()
 {
     uint8_t selected = 0;
