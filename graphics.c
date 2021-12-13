@@ -126,6 +126,21 @@ void move_background(screenstate * state, uint8_t amount) {
     // }
 }
 
+void display_isr(){
+
+    //         För att kolla om programmet kraschar:
+        //  if (PORTE == 1){
+        //      PORTE = 0;
+        //  } else{
+        //      PORTE = 1;
+        //  }
+
+
+    IFSCLR(0) = 0x10000; // Clear Timer 4 interrupt flag
+    return;
+
+}
+
 void display_init(void) {
     DISPLAY_CHANGE_TO_COMMAND_MODE;
     quicksleep(10);
@@ -154,6 +169,16 @@ void display_init(void) {
     display_send_byte(0x20);
 
     display_send_byte(0xAF);
+
+
+
+//   T4CON = 0x0070;         // Set timer off and prescale to 1:256
+//   TMR4 = 0x0;             // Reset timer count
+//   PR4 = 6250;             // Set period to get total of 0.04 sec
+//   IFSCLR(0) = 0x10000;    // Make sure the time-out flag is cleared
+//   T4CONSET = 0x8000;      // Turn the timer on again
+//   IPCSET(4) = 0x1f;       // Set priority to max
+//   IECSET(0) = 0x10000;// Enable interupts for Timer 4
 }
 
 // Puts string in textbuffer, show with display_textbuffer()

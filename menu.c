@@ -7,7 +7,7 @@
 void level_selection()
 {
     uint8_t selected = 0;
-    selectarrow.pos.y = 25;
+    selectarrow.pos.y = 23;
     while (1)
     {
         if (!btn_dwn_flag)
@@ -15,16 +15,7 @@ void level_selection()
             if (PORTF & 0b10)
             { // if btn1
                 btn_dwn_flag = 1;
-                if (selected)
-                {
-                    play_level(2);
-                    return;
-                }
-                else
-                {
-                    play_level(1);
-                    return;
-                }
+                play_level(selected);
             }
 
             refresh_screen(&level_selection_screen);
@@ -35,6 +26,8 @@ void level_selection()
             else if (PORTD & 0b1000000)
             { // if btn3
                 selected = 0;
+            }else if (PORTD & 0b10000000){ //if btn 4
+                return;
             }
             if (selected)
             {
@@ -84,8 +77,6 @@ void main_menu()
             else if (PORTD & 0b1000000)
             { // if btn3
                 selected = 0;
-            } else if (PORTD & 0b10000000){ //if btn 4
-                return;
             }
             if (selected)
             {

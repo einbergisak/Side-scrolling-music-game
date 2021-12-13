@@ -10,4 +10,5 @@ typedef struct screenstate {
     uint8_t entire_image[]; // Entire source image as flexible array member
 } screenstate;
 
+screenstate * current_level_screen;
 #endif

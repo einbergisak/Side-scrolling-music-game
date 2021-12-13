@@ -24,6 +24,9 @@ void user_isr(void) {
   if (IFS(0) & 0x00001000) {
     song_isr();
   }
+  if (IFS(0) & 0x100000000){
+      display_isr();
+  }
 }
 
 int main(void) {
@@ -81,7 +84,6 @@ int main(void) {
     display_init();
 	// Audio Setup
   	audio_init();
-  	song_init(0);
 
     main_menu();
 
