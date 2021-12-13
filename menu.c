@@ -84,7 +84,9 @@ void main_menu()
             else if (PORTD & 0b1000000)
             { // if btn3
                 selected = 0;
-            } else if (PORTD & 0b10000000){ //if btn 4
+            }
+            else if (PORTD & 0b10000000)
+            { //if btn 4
                 return;
             }
             if (selected)

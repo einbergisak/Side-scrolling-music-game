@@ -6,22 +6,24 @@
 #include <stdint.h>
 #include "screenstate.h"
 
-typedef struct vec2 {
+typedef struct vec2
+{
     int32_t x;
     int32_t y;
 } vec2;
 
-typedef struct object {
+typedef struct object
+{
     vec2 size;
     vec2 pos;
     vec2 vel;
     uint32_t image[]; // flexible array member
 } object;
 
-int move_object(screenstate * state, object * obj);
-uint8_t check_vertical_collision(screenstate * state, object * obj);
+int move_object(screenstate *state, object *obj);
+uint8_t check_vertical_collision(screenstate *state, object *obj);
 void check_player_collision();
-uint8_t check_wall_collision(screenstate * state, object * obj);
+uint8_t check_wall_collision(screenstate *state, object *obj);
 uint8_t player_jumpflag;
 
 object player;

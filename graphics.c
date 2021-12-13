@@ -8,7 +8,7 @@
 
 #include <stdint.h>
 #include <math.h>
-#include <pic32mx.h> /* Declarations of system-specific addresses etc */
+#include <pic32mx.h>  /* Declarations of system-specific addresses etc */
 #include "graphics.h" // Declarations for this file
 #include "image_arrays.h"
 #include "highscore.h"
@@ -32,26 +32,32 @@ static void num32asc(char *s, int);
    A simple function to create a small delay.
    Very inefficient use of computing resources,
    but very handy in some special cases. */
-void quicksleep(int cyc) {
+void quicksleep(int cyc)
+{
     int i;
-    for (i = cyc; i > 0; i--);
+    for (i = cyc; i > 0; i--)
+        ;
 }
 
-uint8_t display_send_byte(uint8_t data) {
+uint8_t display_send_byte(uint8_t data)
+{
     // Wait for transmitter
-    while (!(SPI2STAT & 0x08));
+    while (!(SPI2STAT & 0x08))
+        ;
 
     // Write transmit byte
     SPI2BUF = data;
 
     // Wait for recieve byte
-    while (!(SPI2STAT & 1));
+    while (!(SPI2STAT & 1))
+        ;
 
     return SPI2BUF;
 }
 
 // Reference: https://digilent.com/reference/_media/chipkit_shield_basic_io_shield:chipkit_basic_io_shield_rm.pdf
-void draw_entire_display(screenstate *state) {
+void draw_entire_display(screenstate *state)
+{
     // page = display memory page number, col = column in display memory page
     int page, col;
 
@@ -72,14 +78,14 @@ void draw_entire_display(screenstate *state) {
         for (col = 0; col < 128; col++) // 128 bytes per page (screen width)
         {
             display_send_byte(
-                    state->current_image[page * 128 + col]
-            );
+                state->current_image[page * 128 + col]);
         }
     }
 }
 
 /// Sets state.current_image to the correct (scrolled) view of state.entire_image
-void refresh_screen(screenstate * state) {
+void refresh_screen(screenstate *state)
+{
     // page = display memory page number, col = column in display memory page
     int page, col;
 
@@ -90,43 +96,49 @@ void refresh_screen(screenstate * state) {
         for (col = 0; col < 128; col++) // 128 bytes per page (screen width)
         {
             uint8_t byte_to_draw;
-            byte_to_draw = state->entire_image[
-                    page * state->entire_image_width // y-coordinates (page)
-                    + col + state->current_scroll_amount // x-coordinates (column)
+            byte_to_draw = state->entire_image[page * state->entire_image_width     // y-coordinates (page)
+                                               + col + state->current_scroll_amount // x-coordinates (column)
             ];
             state->current_image[page * 128 + col] = byte_to_draw;
         }
     }
 }
 
-
 /// Draws the object at object.pos, on top of what's currently in state.current_image
-void add_object_to_screen(object *obj, screenstate *state) {
+void add_object_to_screen(object *obj, screenstate *state)
+{
     int page, col;
     uint8_t obj_width = obj->size.x;
     int8_t obj_x = obj->pos.x;
     int8_t obj_y = obj->pos.y;
     uint32_t temp;
-    for (col = 0; col < obj_width; col++) {
-        if (obj_y < 0) { // out of bounds invisibility
+    for (col = 0; col < obj_width; col++)
+    {
+        if (obj_y < 0)
+        { // out of bounds invisibility
             temp = obj->image[col] >> (obj_y * -1);
-        } else {
+        }
+        else
+        {
             temp = obj->image[col] << obj_y;
         }
-        for (page = 0; page < 4; page++) {
+        for (page = 0; page < 4; page++)
+        {
             state->current_image[page * 128 + obj_x + col] |= 0xFF & (temp >> 8 * page);
         }
     }
 }
 
-void move_background(screenstate * state, uint8_t amount) {
+void move_background(screenstate *state, uint8_t amount)
+{
     state->current_scroll_amount += amount;
     // if (check_wall_collision(state, &player)) { //TODO: Test att kolla om denna går att yeeta bort
     //    game_over();
     // }
 }
 
-void display_init(void) {
+void display_init(void)
+{
     DISPLAY_CHANGE_TO_COMMAND_MODE;
     quicksleep(10);
     DISPLAY_ACTIVATE_VDD;
@@ -157,7 +169,8 @@ void display_init(void) {
 }
 
 // Puts string in textbuffer, show with display_textbuffer()
-void put_string(int line, char *s) {
+void put_string(int line, char *s)
+{
     int i;
     if (line < 0 || line >= 4)
         return;
@@ -165,30 +178,35 @@ void put_string(int line, char *s) {
         return;
 
     for (i = 0; i < 16; i++)
-        if (*s) {
+        if (*s)
+        {
             textbuffer[line][i] = *s;
             s++;
-        } else
+        }
+        else
             textbuffer[line][i] = ' ';
 }
 
 // Renders content from textbuffer
-void add_textbuffer_to_screen(screenstate * state) {
+void add_textbuffer_to_screen(screenstate *state)
+{
     int page, letter_pos, column;
     int letter;
-    for (page = 0; page < 4; page++) {
-        for (letter_pos = 0; letter_pos < 16; letter_pos++) {
-            letter= textbuffer[page][letter_pos];
+    for (page = 0; page < 4; page++)
+    {
+        for (letter_pos = 0; letter_pos < 16; letter_pos++)
+        {
+            letter = textbuffer[page][letter_pos];
             if (letter >= 0x80 || letter < 0x20)
                 continue;
 
-            for (column = 0; column < 8; column++) {
+            for (column = 0; column < 8; column++)
+            {
                 state->current_image[page * 128 + letter_pos * 8 + column] |= font[letter * 8 + column];
             }
         }
     }
 }
-
 
 /*
  * itoa
@@ -197,29 +215,35 @@ void add_textbuffer_to_screen(screenstate * state) {
  * Converts binary to decimal numbers
  * Returns pointer to (static) char array
  */
-#define ITOA_BUFSIZ ( 24 )
+#define ITOA_BUFSIZ (24)
 
-char *itoaconv(int num) {
+char *itoaconv(int num)
+{
     register int i, sign;
     static char itoa_buffer[ITOA_BUFSIZ];
     static const char maxneg[] = "-2147483648";
 
-    itoa_buffer[ITOA_BUFSIZ - 1] = 0;   /* Insert the end-of-string marker. */
-    sign = num;                           /* Save sign. */
-    if (num < 0 && num - 1 > 0)          /* Check for most negative integer */
+    itoa_buffer[ITOA_BUFSIZ - 1] = 0; /* Insert the end-of-string marker. */
+    sign = num;                       /* Save sign. */
+    if (num < 0 && num - 1 > 0)       /* Check for most negative integer */
     {
         for (i = 0; i < sizeof(maxneg); i += 1)
             itoa_buffer[i + 1] = maxneg[i];
         i = 0;
-    } else {
-        if (num < 0) num = -num;           /* Make number positive. */
-        i = ITOA_BUFSIZ - 2;                /* Location for first ASCII digit. */
-        do {
-            itoa_buffer[i] = num % 10 + '0';/* Insert next digit. */
-            num = num / 10;                   /* Remove digit from number. */
-            i -= 1;                           /* Move index to next empty position. */
+    }
+    else
+    {
+        if (num < 0)
+            num = -num;      /* Make number positive. */
+        i = ITOA_BUFSIZ - 2; /* Location for first ASCII digit. */
+        do
+        {
+            itoa_buffer[i] = num % 10 + '0'; /* Insert next digit. */
+            num = num / 10;                  /* Remove digit from number. */
+            i -= 1;                          /* Move index to next empty position. */
         } while (num > 0);
-        if (sign < 0) {
+        if (sign < 0)
+        {
             itoa_buffer[i] = '-';
             i -= 1;
         }
