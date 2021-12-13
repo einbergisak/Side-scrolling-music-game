@@ -4,3 +4,7 @@
 *.hex
 .deps
 .vscode/
+.DS_Store
+test.txt
+test/
+music/
