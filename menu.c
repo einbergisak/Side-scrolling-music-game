@@ -3,6 +3,9 @@
 #include "highscore.h"
 #include "game.h"
 #include <pic32mx.h> /* Declarations of system-specific addresses etc */
+#include "screenstate.h"
+#include "object.h"
+#include "highscore.h"
 
 void level_selection()
 {

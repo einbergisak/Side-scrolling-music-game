@@ -14,6 +14,7 @@
 #include "audio.h"
 #include "image_arrays.h"
 #include "menu.h"
+#include "game.h"
 
 
 void user_isr(void) {
@@ -23,6 +24,9 @@ void user_isr(void) {
   }
   if (IFS(0) & 0x00001000) {
     song_isr();
+    if (ingame)
+      update_game();
+
   }
   if (IFS(0) & 0x100000000){
       display_isr();
