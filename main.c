@@ -78,9 +78,12 @@ int main(void) {
     TRISE &= ~0xFF;
     PORTE &= ~0xFF;
 
-    display_init();	// Audio Setup
+    display_init();
+	// Audio Setup
   	audio_init();
   	song_init(0);
-    main_menu();
+
+    main_menu();
+
     return 0;
 }
