@@ -64,6 +64,9 @@ int main(void)
 	display_update();
 
 	set_entire_display(iconn);
+  // Audio Setup
+  audio_init();
+  song_init(0);
 
 	while (1)
 	{
