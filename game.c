@@ -55,7 +55,7 @@ void game_over() {
     put_short_string(0, "", 0);
     add_textbuffer_to_screen(&game_over_screen);
     draw_entire_display(&game_over_screen);
-    quicksleep(5000000);
+    quicksleep(3000000);
   }
   return;
 }
