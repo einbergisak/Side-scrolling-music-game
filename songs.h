@@ -1,4 +1,3 @@
-extern char twinkle[];
-extern int twinkleLength;
-extern char chords[];
-extern int chordsLength;
+extern char *songs[];
+extern int song_lengths[];
+

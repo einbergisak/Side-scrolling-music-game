@@ -29,6 +29,7 @@ void play_level(int level)
     ingame = 1; // enables game logic in song_isr
     while (ingame)
         ; // loop until game over;
+    song_stop();
 }
 
 

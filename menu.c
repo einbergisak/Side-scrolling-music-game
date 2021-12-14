@@ -19,6 +19,7 @@ void level_selection()
             if (PORTF & 0b10)
             { // if btn1
                 btn_dwn_flag = 1;
+                song_init(selected);
                 play_level(selected);
             }
 

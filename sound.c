@@ -4,21 +4,27 @@ unsigned char tone_at_count(unsigned int count, char tone_index) {
   int i;
   switch (tone_index) {
   case 0:
+    i = count % D4length;
+    return D4[i];
+  case 1:
+    i = count % E4length;
+    return E4[i];
+  case 2:
     i = count % G4length;
     return G4[i];
-  case 1:
+  case 3:
     i = count % A4length;
     return A4[i];
-  case 2:
+  case 4:
     i = count % B4length;
     return B4[i];
-  case 3:
+  case 5:
     i = count % C5length;
     return C5[i];
-  case 4:
+  case 6:
     i = count % D5length;
     return D5[i];
-  case 5:
+  case 7:
     i = count % E5length;
     return E5[i];
   default:

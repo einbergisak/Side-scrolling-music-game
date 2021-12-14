@@ -3,41 +3,44 @@
 #include "waves.h"
 #include <pic32mx.h> /* Declarations of system-specific addresses etc */
 
-char cur_song;
-char cur_tones = 0;
-unsigned int song_pos = 0;
+char *cur_song;
+char cur_tones;
+int song_length;
+unsigned int song_pos;
+char playing = 0;
 
-void song_init(char song) { cur_song = song; }
+void song_init(char song_index) {
+  // Ensure sound is paused
+  playing = 0;
 
-int loopcounter = 0;
-void song_isr()
-{
-  IFSCLR(0) = 0x00001000;
-  if (loopcounter == 10)
-  {
-    loopcounter = 0;
-    switch (cur_song)
-    {
-    case 0:
-      if (song_pos < twinkleLength)
-      {
-        cur_tones = twinkle[song_pos];
-      }
-      break;
-    case 1:
-      if (song_pos < chordsLength)
-      {
-        cur_tones = chords[song_pos];
-      }
-      break;
-    }
-    song_pos++;
-  }
-  loopcounter += 1;
+  // Set values to start position
+  cur_tones = 0;
+  song_pos = 0;
+
+  // Set cur_song and get its length
+  cur_song = songs[song_index];
+  song_length = song_lengths[song_index];
+
+  // Resume playback
+  playing = 1;
 }
 
-void audio_init()
-{
+void song_start() { playing = 1; }
+
+void song_stop() { playing = 0; }
+
+int song_int_count;
+void song_isr() {
+  // If not paused or past song end, set cur_tones and increment song_pos
+  song_int_count++;
+  if (song_int_count == 2 && playing && song_pos < song_length) {
+    song_int_count = 0;
+    cur_tones = cur_song[song_pos];
+    song_pos++;
+  }
+}
+
+void audio_init() {
   // Set up output ports for speaker control
   TRISECLR = 0xFF;
   PORTE |= 0x0;
@@ -51,21 +54,14 @@ void audio_init()
   IPCSET(2) = 0x1f;       // Set priority to max
   IECSET(0) = 0x100;      // Enable interupts for Timer 2
 
-  // Song timer initialization
-  T3CON = 0x0070;         // Set timer off and prescale to 1:256
-  TMR3 = 0x0;             // Reset timer count
-  PR3 = 6250*1.5;            // Set period to get total of 0.04 sec
-  IFSCLR(0) = 0x00001000; // Make sure the time-out flag is cleared
-  T3CONSET = 0x8000;      // Turn the timer on again
-  IPCSET(3) = 0x1f;       // Set priority to max
-  IECSET(0) = 0x1000;     // Enable interupts for Timer 2
-
   // Interrupt initialization
   asm("ei");
 }
 
 unsigned int audio_counter = 0;
 void update_audio() {
+  // Check all bits in cur_tones and sum the waves of those that should be
+  // played
   int out = 0;
   int n;
   for (n = 0; n < 8; n++) {
@@ -73,13 +69,15 @@ void update_audio() {
       out += tone_at_count(audio_counter, n);
     }
   }
+
   PORTE = 128 + out;
   audio_counter++;
 }
 
-void audio_isr()
-{
+void audio_isr() {
   // Reset time-out flag
   IFSCLR(0) = 0x00000100;
-  update_audio();
+  if (playing) {
+    update_audio();
+  }
 }
