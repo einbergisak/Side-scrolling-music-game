@@ -52,7 +52,7 @@ void game_over() {
     put_short_string(0, "", 0);
     put_short_string(1, "   GAME OVER", 12);
     put_short_string(2, "   YOU LOST", 11);
-    put_short_string(0, "", 0);
+    put_short_string(3, "", 0);
     add_textbuffer_to_screen(&game_over_screen);
     draw_entire_display(&game_over_screen);
     quicksleep(3000000);
