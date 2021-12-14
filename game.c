@@ -32,6 +32,17 @@ void play_level(int level)
     song_stop();
 }
 
+void timer_init() {
+  // Game timer initialization
+  T3CON = 0x0070;         // Set timer off and prescale to 1:256
+  TMR3 = 0x0;             // Reset timer count
+  PR3 = 6250;             // Set period to get total of 0.04 sec
+  IFSCLR(0) = 0x00001000; // Make sure the time-out flag is cleared
+  T3CONSET = 0x8000;      // Turn the timer on again
+  IPCSET(3) = 0x1f;       // Set priority to max
+  IECSET(0) = 0x1000;     // Enable interupts for Timer 2
+}
+
 
 /// Ends the game
 void game_over()
