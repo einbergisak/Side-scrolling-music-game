@@ -91,3 +91,8 @@ int song_lengths[] = {
     sizeof(jingle),
     sizeof(twinkle),
 };
+
+int song_tempos[] = {
+    4,
+    8,
+};

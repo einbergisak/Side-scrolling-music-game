@@ -7,6 +7,7 @@ char *cur_song;
 char cur_tones;
 int song_length;
 unsigned int song_pos;
+int cur_tempo;
 char playing = 0;
 
 void song_init(char song_index) {
@@ -20,6 +21,7 @@ void song_init(char song_index) {
   // Set cur_song and get its length
   cur_song = songs[song_index];
   song_length = song_lengths[song_index];
+  cur_tempo = song_tempos[song_index];
 
   // Resume playback
   playing = 1;
@@ -29,14 +31,16 @@ void song_start() { playing = 1; }
 
 void song_stop() { playing = 0; }
 
-int song_int_count;
+int song_int_count = 0;
 void song_isr() {
   // If not paused or past song end, set cur_tones and increment song_pos
-  song_int_count++;
-  if (song_int_count == 2 && playing && song_pos < song_length) {
-    song_int_count = 0;
-    cur_tones = cur_song[song_pos];
-    song_pos++;
+  if (playing) {
+    song_int_count++;
+    if (song_int_count >= cur_tempo && playing && song_pos < song_length) {
+      song_int_count = 0;
+      cur_tones = cur_song[song_pos];
+      song_pos++;
+    }
   }
 }
 
